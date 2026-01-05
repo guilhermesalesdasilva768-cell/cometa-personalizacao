@@ -1,0 +1,939 @@
+/* styles.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* RESET SIMPLES */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top, #3b0f70 0%, #050508 45%, #000000 100%);
+  color: #f5f5f5;
+}
+
+/* Layout principal */
+.app-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+/* HEADER */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(5, 5, 15, 0.95),
+    rgba(5, 5, 15, 0.85)
+  );
+
+  border-bottom: 1px solid rgba(128, 90, 213, 0.35);
+  backdrop-filter: blur(12px);
+  z-index: 100;
+}
+
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header-logo img {
+  height: 40px;
+  width: 40px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 2px solid #a855f7;
+}
+
+.header-title {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.title-main {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+}
+
+.title-sub {
+  margin-top: 0.15rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #c084fc;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+}
+
+/* links normais */
+.nav-link {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #e5e7eb;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.4rem 0.2rem;
+  border-radius: 999px;
+
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #ffffff;
+}
+
+/* página ativa (texto mais forte) */
+.nav-link.active {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* CTA (Contato) */
+.nav-cta {
+  margin-left: 0.6rem;
+  padding: 0.5rem 1.4rem;
+  font-weight: 600;
+
+  color: #ffffff;
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+  border-radius: 999px;
+
+  box-shadow:
+    0 0 18px rgba(236,72,153,0.6),
+    inset 0 0 10px rgba(255,255,255,0.15);
+
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.nav-cta:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 26px rgba(236,72,153,0.8);
+}
+
+
+
+/* CUSTOMIZER LAYOUT */
+/* MOBILE FIRST — tudo em coluna */
+.customizer-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* DESKTOP — aí sim vira 3 colunas */
+@media (min-width: 900px) {
+  .customizer-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr 1fr;
+    gap: 1.5rem;
+  }
+}
+
+
+@media (max-width: 1100px) {
+  .customizer-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel {
+  background: rgba(15, 23, 42, 0.95);
+  border-radius: 1.1rem;
+  border: 1px solid rgba(55, 65, 81, 0.8);
+  padding: 1rem;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.7);
+}
+
+.panel-header {
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #9ca3af;
+  margin-bottom: 1rem;
+}
+
+.panel-header span {
+  color: #a855f7;
+}
+
+.panel-section {
+  margin-bottom: 1rem;
+}
+
+.panel-section label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #9ca3af;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.select,
+.input,
+.color-input {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(55, 65, 81, 0.9);
+  background: rgba(15, 23, 42, 0.9);
+  color: #e5e7eb;
+  font-size: 0.9rem;
+}
+
+.color-input {
+  padding: 0;
+  height: 2.4rem;
+}
+
+/* ÁREA PNG (aqui você conecta o Konva depois) */
+.png-area {
+  background: radial-gradient(circle at top, rgba(17, 24, 39, 0.9) 0%, #020617 85%);
+  border-radius: 0.9rem;
+  border: 1px dashed rgba(148, 163, 184, 0.7);
+  height: 360px;
+  display: grid;
+  place-items: center;
+  color: #e5e7eb;
+  font-size: 0.9rem;
+}
+
+/* VIEWER 3D */
+.viewer-3d {
+  background: radial-gradient(circle at top, rgba(17, 24, 39, 0.9) 0%, #020617 85%);
+  border-radius: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  height: 360px;
+  overflow: hidden;
+}
+
+@media (min-width: 600px) {
+  .viewer-3d {
+    height: 360px;
+  }
+}
+
+/* ===============================
+   PRODUTOS – LAYOUT PREMIUM
+================================ */
+
+.products-grid {
+  margin-top: 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+}
+
+/* CARD */
+.product-card {
+  position: relative;
+  background: linear-gradient(160deg, #1b0f2e, #0b0614);
+  border-radius: 18px;
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  overflow: hidden;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+
+  display: flex;              /* 🔥 ESSENCIAL */
+  flex-direction: column;     /* 🔥 ESSENCIAL */
+}
+
+
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 45px rgba(168, 85, 247, 0.35);
+}
+
+/* BADGE */
+.product-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: linear-gradient(90deg, #a855f7, #7c3aed);
+  color: #ffffff;
+  font-size: 0.7rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+  z-index: 3;
+}
+
+/* IMAGEM */
+.product-image {
+  position: relative;
+  background: #ffffff;
+  height: 260px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+/* efeito "fita" */
+.product-image::before,
+.product-image::after {
+  content: "";
+  position: absolute;
+  width: 60px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.6);
+  top: 10px;
+  z-index: 2;
+}
+
+.product-image::before {
+  left: 12px;
+  transform: rotate(-18deg);
+}
+
+.product-image::after {
+  right: 12px;
+  transform: rotate(18deg);
+}
+
+/* INFORMAÇÕES */
+.product-info {
+  background: #2a2a2a;
+  padding: 1.5rem 1.2rem;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+
+.product-title {
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+
+  min-height: 3.2rem; /* 🔥 ESSENCIAL */
+}
+
+
+.product-desc {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  color: #bdbdbd;
+
+  min-height: 1.4rem; /* 🔥 ESSENCIAL */
+}
+
+
+.product-price {
+  margin-top: 1rem;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #6d7cff;
+}
+
+/* RESPONSIVO */
+@media (max-width: 480px) {
+  .product-image {
+    height: 200px;
+  }
+}
+
+
+
+/* FOOTER */
+.footer {
+  border-top: 1px solid rgba(55, 65, 81, 0.8);
+  padding: 1rem 1.5rem;
+  background: #020617;
+  color: #9ca3af;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* FLOATING BUTTONS */
+.floating-buttons {
+  position: fixed;
+  right: 0.8rem;
+  bottom: 18rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  z-index: 50;
+}
+
+.float-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #ffffff; /* cor do ícone */
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* tamanho correto do ícone (SVG) */
+.float-btn svg {
+  width: 26px;
+  height: 26px;
+}
+
+/* CORES DOS BOTÕES */
+.float-btn-whatsapp {
+  background: #22c55e;
+}
+
+.float-btn-instagram {
+  background: radial-gradient(
+    circle at 30% 30%,
+    #facc15,
+    #ec4899,
+    #8b5cf6
+  );
+}
+
+.float-btn:hover {
+  transform: translateY(-2px) scale(1.06);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.85);
+}
+
+
+/* TÍTULOS INTERNOS */
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 0.4rem;
+}
+
+.section-subtitle {
+  font-size: 0.95rem;
+  color: #a1a1aa;
+  margin-bottom: 1rem;
+}
+
+/* Mostrar no mobile */
+.mobile-only {
+  display: none;
+}
+
+.desktop-only {
+  display: flex;
+}
+
+/* Responsivo: mobile */
+@media (max-width: 850px) {
+  .desktop-only {
+    display: none;
+  }
+
+  .mobile-only {
+    display: block;
+    font-size: 2rem;
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+  }
+}
+
+
+/* ===============================
+   PAINEL — ORGANIZAÇÃO VISUAL
+================================ */
+.panel-section {
+  margin-bottom: 1rem;
+}
+
+.panel-section label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #9ca3af;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+/* ===============================
+   FRENTE / COSTAS
+================================ */
+.side-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.side-buttons button {
+  flex: 1;
+  padding: 0.5rem 0;
+  border-radius: 999px;
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  color: #e5e7eb;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.side-buttons button:hover {
+  background: rgba(168, 85, 247, 0.2);
+}
+
+.side-buttons .btn-active {
+  background: linear-gradient(135deg, #a855f7, #4c1d95);
+  border-color: #a855f7;
+  box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.25);
+}
+
+/* ===============================
+   BOTÃO REMOVER
+================================ */
+.btn-danger {
+  margin-top: 0.6rem;
+  padding: 0.6rem;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #fecaca;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.35);
+}
+
+.btn-danger:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ===============================
+   PRODUTOS — INTERAÇÃO
+================================ */
+.product-card {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgba(168, 85, 247, 0.35);
+}
+
+/* ===============================
+   HOME — EFEITO PREMIUM
+================================ */
+.home-preview-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    120deg,
+    transparent 40%,
+    rgba(168, 85, 247, 0.15),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.home-preview-card:hover::after {
+  opacity: 1;
+}
+
+
+/* ===============================
+   FUNDO COM ESTRELAS PISCANDO
+================================ */
+
+.comet-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+/* camada de estrelas */
+.comet-bg::before,
+.comet-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, #ffffffaa, transparent),
+    radial-gradient(1px 1px at 30% 80%, #ffffff88, transparent),
+    radial-gradient(1px 1px at 50% 40%, #ffffffaa, transparent),
+    radial-gradient(1px 1px at 70% 10%, #ffffff99, transparent),
+    radial-gradient(1px 1px at 90% 60%, #ffffff77, transparent),
+    radial-gradient(2px 2px at 20% 50%, #c084fcaa, transparent),
+    radial-gradient(2px 2px at 80% 30%, #a855f7aa, transparent);
+  background-repeat: repeat;
+  background-size: 400px 400px;
+  animation: stars-twinkle 8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.comet-bg::after {
+  animation-duration: 12s;
+  opacity: 0.6;
+}
+
+/* animação suave de brilho */
+@keyframes stars-twinkle {
+  0% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0.4;
+  }
+}
+
+/* garante que conteúdo fique acima */
+.comet-bg > * {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* ===============================
+   CONTATO — VISUAL AJUSTADO
+================================ */
+
+.contact-section {
+  margin-top: 4rem;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.contact-wrapper {
+  max-width: 520px;
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  border-radius: 1.4rem;
+  padding: 2rem 2rem 2.2rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+}
+
+/* itens */
+.contact-item {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.8rem;
+  align-items: flex-start;
+}
+
+.contact-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  margin-top: 0.2rem;
+}
+
+/* títulos */
+.contact-item h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.25rem;
+}
+
+/* texto */
+.contact-item p {
+  font-size: 0.95rem;
+  color: #c7c7d1;
+  line-height: 1.5;
+}
+
+/* links viram botões */
+.contact-link {
+  display: inline-block;
+  margin-top: 0.6rem;
+  padding: 0.45rem 1.1rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.contact-link.whatsapp {
+  background: rgba(34, 197, 94, 0.18);
+  border: 1px solid rgba(34, 197, 94, 0.6);
+  color: #4ade80;
+}
+
+.contact-link.whatsapp:hover {
+  background: rgba(34, 197, 94, 0.35);
+}
+
+.contact-link.instagram {
+  background: rgba(168, 85, 247, 0.18);
+  border: 1px solid rgba(168, 85, 247, 0.6);
+  color: #c084fc;
+}
+
+.contact-link.instagram:hover {
+  background: rgba(168, 85, 247, 0.35);
+}
+
+.comet-logo {
+  width: 48px;
+  height: 48px;
+  margin-right: 0.6rem;
+  position: relative;
+
+  animation: comet-fall 4.5s ease-in-out infinite;
+}
+
+
+.comet-core {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: relative;
+
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.35), transparent 35%),
+    radial-gradient(circle at 70% 70%, rgba(168,85,247,0.6), transparent 40%),
+    conic-gradient(
+      from 0deg,
+      #a855f7,
+      #6366f1,
+      #0ea5e9,
+      #a855f7
+    );
+
+  animation: comet-spin 3s linear infinite;
+
+  box-shadow:
+    0 0 22px rgba(168, 85, 247, 0.9),
+    inset 0 0 18px rgba(255, 255, 255, 0.25);
+}
+
+
+.comet-core::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+
+  background: radial-gradient(
+    circle at 40% 40%,
+    rgba(255,255,255,0.45),
+    rgba(168,85,247,0.25),
+    transparent 65%
+  );
+
+  animation: galaxy-spin-reverse 14s linear infinite;
+}
+
+.comet-core::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+
+  background: radial-gradient(
+    circle,
+    rgba(168,85,247,0.6),
+    transparent 70%
+  );
+
+  filter: blur(10px);
+  opacity: 0.8;
+}
+
+@keyframes comet-fall {
+  0% {
+    transform: translate(0, 0) rotate(-20deg);
+    opacity: 0.9;
+  }
+
+  40% {
+    transform: translate(6px, 6px) rotate(-20deg);
+    opacity: 1;
+  }
+
+  70% {
+    transform: translate(10px, 10px) rotate(-20deg);
+    opacity: 0.85;
+  }
+
+  100% {
+    transform: translate(0, 0) rotate(-20deg);
+    opacity: 0.9;
+  }
+}
+
+
+.header-logo:hover .comet-core {
+  box-shadow:
+    0 0 32px rgba(168, 85, 247, 1),
+    inset 0 0 22px rgba(255, 255, 255, 0.35);
+}
+
+
+
+
+.lottie-comet {
+  width: 56px;        /* tamanho visível */
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* força o Lottie a ocupar tudo */
+  overflow: visible;
+
+  /* glow */
+  filter: drop-shadow(0 0 14px rgba(168, 85, 247, 0.85));
+}
+
+/* força o svg/canvas do lottie a preencher */
+.lottie-comet svg {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ===============================
+   METEORO DECORATIVO (ESTÁTICO)
+================================ */
+
+.hero-premium::after {
+  content: "";
+  position: absolute;
+
+  width: 220px;
+  height: 2px;
+
+  background: linear-gradient(
+    to right,
+    transparent,
+    #ec4899,
+    #c084fc,
+    transparent
+  );
+
+  top: var(--meteor-top, 30%);
+  left: -30%;
+
+  filter: blur(0.6px)
+          drop-shadow(0 0 14px rgba(236,72,153,0.9));
+
+  animation: meteor-diagonal 7s linear infinite;
+}
+
+@keyframes meteor-diagonal {
+  0% {
+    transform: translate(0, 0) rotate(35deg);
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(140vw, 140vh) rotate(35deg);
+    opacity: 0;
+  }
+}
+
+/* ===============================
+   HEADER — CUSTOMIZER MODE
+================================ */
+
+/* esconde visual do header no customizer */
+body.customizer-active .header {
+  background: transparent;
+  border: none;
+  backdrop-filter: none;
+}
+
+/* esconde logo e menu desktop */
+/* esconde apenas o logo no customizer */
+body.customizer-active .header-logo {
+  display: none;
+}
+
+/* mantém menu desktop visível no PC */
+@media (min-width: 851px) {
+  body.customizer-active .nav-links.desktop-only {
+    display: flex;
+  }
+}
+
+
+/* mantém apenas o botão hamburger */
+body.customizer-active .hamburger {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 1000;
+  font-size: 2rem;
+}
+
+
+
+
+
+
