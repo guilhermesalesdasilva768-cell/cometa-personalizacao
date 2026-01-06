@@ -9,8 +9,7 @@ export function Footer() {
         <div>
           <h3 className="text-white font-bold mb-4 uppercase tracking-widest text-xs">Cometa Personalização</h3>
           <p className="leading-relaxed">
-            Especialistas em uniformes esportivos de alta performance. 
-            Transformando a identidade do seu time em realidade 3D.
+            Transformando suas ideias em produtos únicos com qualidade profissional.
           </p>
         </div>
 
@@ -28,7 +27,7 @@ export function Footer() {
         <div>
           <h3 className="text-white font-bold mb-4 uppercase tracking-widest text-xs">Suporte</h3>
           <p>Segunda a Sexta: 08h às 18h</p>
-          <p className="mt-2">contato@cometapersonalizacao.com.br</p>
+          <p className="mt-2"></p>
         </div>
       </div>
 

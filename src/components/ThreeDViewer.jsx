@@ -17,7 +17,7 @@ import * as THREE from "three";
 const SHIRT_MODELS = {
   normal: "/models/modelo3.glb",
   polo: "/models/collar.glb",
-  "manga-longa": "/models/shirt.glb",
+  "manga-longa": "",
 };
 
 /* ===============================
@@ -189,7 +189,7 @@ export const ThreeDViewer = forwardRef(function ThreeDViewer(
       camera={{ position: [0, 0.6, 5], fov: 32 }}
       gl={{ preserveDrawingBuffer: true, antialias: true }}
       onCreated={({ gl }) => {
-        gl.setClearColor("#161a20", 1);
+        gl.setClearColor("#333a45", 1);
         glRef.current = gl;
       }}
     >
@@ -205,7 +205,7 @@ export const ThreeDViewer = forwardRef(function ThreeDViewer(
 
       <OrbitControls
         enablePan={false}
-        enableZoom={false}
+        enableZoom={true}
         minPolarAngle={Math.PI / 2}
         maxPolarAngle={Math.PI / 2}
       />

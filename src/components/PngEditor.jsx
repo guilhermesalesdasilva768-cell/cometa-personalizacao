@@ -58,20 +58,26 @@ export function PngEditor({
      CACHE DE IMAGENS
   =============================== */
   useEffect(() => {
-    images.forEach((img) => {
-      if (imgCacheRef.current.has(img.id)) return;
-
+  images.forEach((img) => {
+    const cached = imgCacheRef.current.get(img.id);
+    
+    // 🔥 Se não tem no cache OU se o SRC mudou (fundo removido), atualiza!
+    if (!cached || cached.src !== img.src) {
       const imageObj = new window.Image();
       imageObj.src = img.src;
-      imgCacheRef.current.set(img.id, imageObj);
-    });
-
-    // limpa cache de imagens removidas
-    const ids = new Set(images.map((i) => i.id));
-    for (const key of imgCacheRef.current.keys()) {
-      if (!ids.has(key)) imgCacheRef.current.delete(key);
+      imageObj.onload = () => {
+        imgCacheRef.current.set(img.id, imageObj);
+        exportFinalTexture(); // Atualiza o 3D assim que carregar
+      };
     }
-  }, [images]);
+  });
+
+  // Limpeza de IDs removidos
+  const ids = new Set(images.map((i) => i.id));
+  for (const key of imgCacheRef.current.keys()) {
+    if (!ids.has(key)) imgCacheRef.current.delete(key);
+  }
+}, [images, exportFinalTexture]);
 
   // Adicione isso dentro do componente PngEditor
   useEffect(() => {
@@ -132,17 +138,24 @@ export function PngEditor({
   }, [selectedId]);
 
   return (
-    <Stage
+    // No arquivo PngEditor.jsx
+<Stage
   width={size}
   height={size}
   ref={stageRef}
-  perfectDrawEnabled={false}
   onMouseDown={(e) => {
-    // Se o clique for no Stage vazio, desmarca
     const clickedOnEmpty = e.target === e.target.getStage();
     if (clickedOnEmpty) onSelect(null);
   }}
-  style={{ borderRadius: 12, backgroundColor: '#000000' }} // Cor de fundo para ajudar a ver a área
+  /* ADICIONE ESTAS DUAS LINHAS ABAIXO */
+  onTouchStart={(e) => {
+    const clickedOnEmpty = e.target === e.target.getStage();
+    if (clickedOnEmpty) {
+      // Permite que o evento de toque passe para o navegador se não clicar na estampa
+      e.evt.preventDefault = () => {};
+    }
+  }}
+  style={{ borderRadius: 12, backgroundColor: '#000000' }}
 >
   <Layer ref={layerRef} imageSmoothingEnabled={false}>
     {/* Mude o fill de transparent para algo com opacidade 0 ou uma cor sólida */}
@@ -216,15 +229,30 @@ export function PngEditor({
         ))}
 
         <Transformer
-          ref={trRef}
-          rotateEnabled
-          enabledAnchors={[
-            "top-left",
-            "top-right",
-            "bottom-left",
-            "bottom-right",
-          ]}
-        />
+  ref={trRef}
+  rotateEnabled
+  // Adicione todos os pontos de ancoragem (meios e cantos)
+  enabledAnchors={[
+    "top-left",
+    "top-center",
+    "top-right",
+    "middle-right",
+    "bottom-right",
+    "bottom-center",
+    "bottom-left",
+    "middle-left",
+  ]}
+  // Isso permite redimensionar largura/altura de forma independente
+  keepRatio={false} 
+  // Garante que o redimensionamento atualize a escala e não bugue a renderização
+  boundBoxFunc={(oldBox, newBox) => {
+    // Impede que o elemento fique com tamanho negativo (invertido)
+    if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) {
+      return oldBox;
+    }
+    return newBox;
+  }}
+/>
       </Layer>
     </Stage>
   );

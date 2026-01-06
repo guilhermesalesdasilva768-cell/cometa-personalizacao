@@ -36,27 +36,39 @@ export function Products() {
     },
     {
       title: "Caneca Branca Porcelana",
-      desc: "Ideal para empresas",
+      desc: "",
       price: "R$ 26,99",
       image: "/assets/produtos/caneca1.png",
     },
     {
       title: "Caneca Mágica",
-      desc: "Ideal para empresas",
+      desc: "",
       price: "R$ 29,99",
       image: "/assets/produtos/caneca2.png",
     },
     {
       title: "Caneca Fundo Colorido",
-      desc: "Ideal para empresas",
+      desc: "",
       price: "R$ 29,99",
       image: "/assets/produtos/caneca3.png",
     },
     {
       title: "Caneca com Colher",
-      desc: "Ideal para empresas",
+      desc: "",
       price: "R$ 29,99",
       image: "/assets/produtos/caneca4.png",
+    },
+    {
+      title: "CERÂMICA 20X20",
+      desc: "",
+      price: "R$ 29,99",
+      image: "/assets/produtos/ceramica.png",
+    },
+    {
+      title: "GARRAFA SQUEZZE 500 ml",
+      desc: "Ideal para empresas",
+      price: "R$ 29,99",
+      image: "/assets/produtos/garrafa.png",
     },
   ];
 

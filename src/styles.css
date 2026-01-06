@@ -241,6 +241,7 @@ body {
   place-items: center;
   color: #e5e7eb;
   font-size: 0.9rem;
+  touch-action: pan-y;
 }
 
 /* VIEWER 3D */

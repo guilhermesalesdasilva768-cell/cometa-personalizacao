@@ -1,7 +1,7 @@
 import { ThreeDViewer } from "../components/ThreeDViewer";
 import { PngEditor } from "../components/PngEditor";
 import React, { useEffect, useState, useRef } from "react";
-
+import { removeBackground } from "@imgly/background-removal";
 export function Customizer() {
   const viewerRef = useRef(null);
 
@@ -25,6 +25,42 @@ export function Customizer() {
     "#8B0000", "#FF0000", "#FF9800", "#FFC0CB", "#FFFF00", "#7CFC00",
     "#2196F3", "#4A6CF7", "#228B22", "#4B0082", "#CFCFCF", "#000000",
   ];
+
+  const [isProcessing, setIsProcessing] = useState(false);
+
+const handleRemoveBackground = async () => {
+  if (!selectedId) return;
+  
+  // Encontra a imagem selecionada
+  const selectedImg = images.find(img => img.id === selectedId);
+  if (!selectedImg) return;
+
+  try {
+    setIsProcessing(true);
+    
+    // Processa a remoção do fundo
+    const blob = await removeBackground(selectedImg.src);
+    
+    // Converte o blob resultante em Base64
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+    reader.onloadend = () => {
+      const base64data = reader.result;
+      
+      // Atualiza a imagem na lista
+      setImages((prev) =>
+        prev.map((img) =>
+          img.id === selectedId ? { ...img, src: base64data } : img
+        )
+      );
+      setIsProcessing(false);
+    };
+  } catch (error) {
+    console.error("Erro ao remover fundo:", error);
+    setIsProcessing(false);
+    alert("Não foi possível remover o fundo desta imagem.");
+  }
+};
 
   useEffect(() => {
     if (!selectedId) return;
@@ -310,16 +346,29 @@ useEffect(() => {
     </div>
   </div>
 
-  {/* Botão de Remover agora visível na rolagem */}
-  <div className="px-2">
-    <button
-      onClick={removeSelectedItem}
-      disabled={!selectedId}
-      className="w-full bg-red-500/20 py-4 rounded-lg text-red-300 border border-red-500/30 disabled:opacity-40 font-medium mb-4"
-    >
-      🗑️ Remover item selecionado
-    </button>
-  </div>
+  {/* Dentro do bloco mobileTab === "png" */}
+<div className="px-2 space-y-2">
+  
+  <button
+    onClick={handleRemoveBackground}
+    disabled={!selectedId || isProcessing || !selectedId.startsWith('img-')}
+    className="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg text-white font-medium disabled:opacity-40 flex items-center justify-center gap-2"
+  >
+    {isProcessing ? (
+      <span className="animate-spin">🌀</span>
+    ) : (
+      "✨ Remover Fundo da Imagem"
+    )}
+  </button>
+
+  <button
+    onClick={removeSelectedItem}
+    disabled={!selectedId}
+    className="w-full bg-red-500/20 py-3 rounded-lg text-red-300 border border-red-500/30 disabled:opacity-40 font-medium mb-4"
+  >
+    🗑️ Remover item selecionado
+  </button>
+</div>
 </div>
             
 

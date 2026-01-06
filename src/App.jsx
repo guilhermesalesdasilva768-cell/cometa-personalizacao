@@ -19,7 +19,8 @@ export default function App() {
 
 {/* HERO FORA DO CONTAINER */}
 {page === "home" && (
-  <Home onGoToCustomizer={() => setPage("customizer")} />
+  <Home onGoToCustomizer={() => setPage("customizer")}
+  onGoToProducts={() => setPage("products")} />
 )}
 
 {/* CONTEÚDO LIMITADO */}
