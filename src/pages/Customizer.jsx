@@ -140,14 +140,29 @@ useEffect(() => {
   };
 
   /* 🔥 CORREÇÃO DO MOCKUP (AGORA BAIXA A CAMISA 3D) */
+  /* 🔥 CORREÇÃO DO MOCKUP (AGORA BAIXA A CAMISA 3D) */
   const downloadMockup = () => {
+    // 1. Captura a imagem do ThreeDViewer via ref
     const image = viewerRef.current?.exportImage();
-    if (!image) return;
+    if (!image) {
+      alert("Erro ao gerar imagem. Tente novamente.");
+      return;
+    }
 
+    // 2. Cria o elemento de link para o download
     const link = document.createElement("a");
+    
+    // 3. Define o nome do arquivo (ajuda a organizar na pasta Downloads)
+    link.download = `camisa-cometa-${Date.now()}.png`;
+    
+    // 4. Atribui a imagem ao link
     link.href = image;
-    link.download = "mockup-cometa.png";
+    
+    // 5. Truque para garantir funcionamento no Mobile/iOS/Android
+    // O link precisa estar fisicamente no documento para alguns navegadores processarem o clique
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
   };
 
   const resetAll = () => {
