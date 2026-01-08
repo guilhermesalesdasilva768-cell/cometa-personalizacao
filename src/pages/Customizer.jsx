@@ -22,9 +22,37 @@ export function Customizer() {
   const [mobileTab, setMobileTab] = useState("roupa");
 
   const SHIRT_COLORS = [
-    "#8B0000", "#FF0000", "#FF9800", "#FFC0CB", "#FFFF00", "#7CFC00",
-    "#2196F3", "#4A6CF7", "#228B22", "#4B0082", "#CFCFCF", "#000000",
-  ];
+  "#B7A57A", // Cáqui
+  "#2FA4B9", // Azul Turquesa
+  "#FFFFFF", // Branco
+  "#B65A3C", // Terracota
+  "#2FA84F", // Verde Vera
+  "#F2E6C9", // Marfim
+  "#9FC5E8", // Azul BB
+  "#3A4F3B", // Verde Militar
+  "#E91E63", // Pink
+  "#000000", // Preto
+  "#5A3A29", // Marrom
+  "#F57C00", // Laranja
+  "#C2185B", // Fúcsia
+  "#6B1E2E", // Vinho
+  "#FBC02D", // Amarelo
+  "#9FE0B2", // Verde BB
+  "#BDBDBD", // Cinza Mescla
+  "#6A1B9A", // Roxo
+  "#0B7A3E", // Verde Bandeira
+  "#C62828", // Vermelho
+  "#4F4F4F", // Cinza Chumbo
+  "#FA8072", // Salmão
+  "#0D47A1", // Azul Royal
+  "#00A896", // Verde Vick
+  "#F8BBD0", // Rosa BB
+  "#D4A017", // Mostarda
+  "#FF5FA2", // Rosa Chiclete
+  "#C8A2C8", // Lilás
+  "#0A1F44", // Azul Marinho
+];
+
 
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -81,28 +109,45 @@ useEffect(() => {
     setSelectedId(null);
   }
 }, [mobileTab]);
+
+useEffect(() => {
+  // Detecta se o usuário está no navegador interno do Instagram ou Facebook
+  const isInstagram = /Instagram|FBAN|FBAV/i.test(navigator.userAgent);
+  
+  if (isInstagram) {
+    alert("⚠️ Você está no navegador do Instagram. Se o upload de fotos falhar, clique nos '...' no canto superior e selecione 'Abrir no navegador' (Safari/Chrome).");
+  }
+}, []);
   /* ================= FUNÇÕES ================= */
 
   const handleUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const file = e.target.files?.[0];
+  if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImages((prev) => [
-        ...prev,
-        {
-          id: `img-${Date.now()}`,
-          src: reader.result,
-          x: 80,
-          y: 80,
-          width: 200,
-          height: 200,
-        },
-      ]);
-    };
-    reader.readAsDataURL(file);
+  // Verificação básica de tamanho (opcional, para evitar que o navegador do Instagram trave)
+  if (file.size > 10 * 1024 * 1024) {
+    alert("Imagem muito grande! Escolha uma foto com menos de 10MB.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    setImages((prev) => [
+      ...prev,
+      {
+        id: `img-${Date.now()}`,
+        src: reader.result,
+        x: 80,
+        y: 80,
+        width: 200,
+        height: 200,
+      },
+    ]);
+    // Importante: limpa o valor do input para permitir enviar a mesma imagem de novo se apagar
+    e.target.value = ""; 
   };
+  reader.readAsDataURL(file);
+};
 
   const addText = () => {
     if (!textInput.trim()) return;
@@ -141,29 +186,45 @@ useEffect(() => {
 
   /* 🔥 CORREÇÃO DO MOCKUP (AGORA BAIXA A CAMISA 3D) */
   /* 🔥 CORREÇÃO DO MOCKUP (AGORA BAIXA A CAMISA 3D) */
-  const downloadMockup = () => {
-    // 1. Captura a imagem do ThreeDViewer via ref
-    const image = viewerRef.current?.exportImage();
-    if (!image) {
-      alert("Erro ao gerar imagem. Tente novamente.");
-      return;
-    }
+  const downloadMockup = async () => {
+  // 1. Captura a imagem do ThreeDViewer
+  const imageData = viewerRef.current?.exportImage();
+  if (!imageData) {
+    alert("Erro ao gerar imagem. Tente novamente.");
+    return;
+  }
 
-    // 2. Cria o elemento de link para o download
+  try {
+    // 2. Converte a imagem Base64 para um arquivo real (Blob) que o celular entenda
+    const response = await fetch(imageData);
+    const blob = await response.blob();
+    const file = new File([blob], `camisa-cometa-${Date.now()}.png`, { type: "image/png" });
+
+    // 3. Verifica se o navegador (como o do Instagram) suporta compartilhamento de arquivos
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: 'Minha Camisa Personalizada',
+        text: 'Confira o mockup da minha nova camisa!',
+      });
+    } else {
+      // 4. Caso o navegador seja antigo e não suporte Share API (Fallback para PC)
+      const link = document.createElement("a");
+      link.download = `camisa-cometa-${Date.now()}.png`;
+      link.href = imageData;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  } catch (error) {
+    console.error("Erro ao processar imagem:", error);
+    // Se der erro no compartilhamento, tenta o download padrão
     const link = document.createElement("a");
-    
-    // 3. Define o nome do arquivo (ajuda a organizar na pasta Downloads)
-    link.download = `camisa-cometa-${Date.now()}.png`;
-    
-    // 4. Atribui a imagem ao link
-    link.href = image;
-    
-    // 5. Truque para garantir funcionamento no Mobile/iOS/Android
-    // O link precisa estar fisicamente no documento para alguns navegadores processarem o clique
-    document.body.appendChild(link);
+    link.href = imageData;
+    link.download = "camisa-personalizada.png";
     link.click();
-    document.body.removeChild(link);
-  };
+  }
+};
 
   const resetAll = () => {
     setTexts([]);
@@ -328,18 +389,30 @@ useEffect(() => {
             )}
 
             {/* ===== IMAGEM ===== */}
-            {mobileTab === "imagem" && (
-              <div className="space-y-4">
-                <input type="file" accept="image/*" onChange={handleUpload} />
-                <button
-                  onClick={removeSelectedItem}
-                  disabled={!selectedId}
-                  className="w-full bg-red-500/10 py-2 rounded-lg text-red-300 disabled:opacity-40"
-                >
-                  🗑️ Remover item selecionado
-                </button>
-              </div>
-            )}
+            {/* Localize este trecho no seu código */}
+{mobileTab === "imagem" && (
+  <div className="space-y-4">
+    {/* Substitua o <input /> antigo por este: */}
+    <div className="flex flex-col gap-2">
+      <label className="text-white text-sm mb-1">Selecione uma imagem da sua galeria:</label>
+      <input 
+        type="file" 
+        accept="image/png, image/jpeg, image/jpg" 
+        onChange={handleUpload}
+        capture={false} 
+        className="w-full bg-neutral-800 border border-white/10 rounded-lg px-3 py-4 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white"
+      />
+    </div>
+    
+    <button
+      onClick={removeSelectedItem}
+      disabled={!selectedId}
+      className="w-full bg-red-500/10 py-2 rounded-lg text-red-300 disabled:opacity-40"
+    >
+      🗑️ Remover item selecionado
+    </button>
+  </div>
+)}
 
             {/* ===== PNG (Modificado para permitir rolagem) ===== */}
 <div 

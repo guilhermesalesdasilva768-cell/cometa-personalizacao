@@ -61,7 +61,7 @@ export function Products() {
     {
       title: "CERÂMICA 20X20",
       desc: "",
-      price: "R$ 29,99",
+      price: "R$ 19,99",
       image: "/assets/produtos/ceramica.png",
     },
     {
