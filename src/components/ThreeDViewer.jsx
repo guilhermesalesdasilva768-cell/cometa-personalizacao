@@ -186,13 +186,16 @@ export const ThreeDViewer = forwardRef(function ThreeDViewer(
 
   return (
     <Canvas
-      camera={{ position: [0, 0.6, 5], fov: 32 }}
-      gl={{ preserveDrawingBuffer: true, antialias: true }}
-      onCreated={({ gl }) => {
-        gl.setClearColor("#333a45", 1);
-        glRef.current = gl;
-      }}
-    >
+  className="!absolute !inset-0"
+  style={{ width: "100%", height: "100%" }}
+  camera={{ position: [0, 0.6, 5], fov: 32 }}
+  gl={{ preserveDrawingBuffer: true, antialias: true }}
+  onCreated={({ gl }) => {
+    gl.setClearColor("#333a45", 1);
+    glRef.current = gl;
+  }}
+>
+
       <ambientLight intensity={0.9} />
       <directionalLight position={[5, 6, 5]} intensity={1.1} />
 

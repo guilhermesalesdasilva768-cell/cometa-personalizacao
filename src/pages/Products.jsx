@@ -1,6 +1,9 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
+import { supabase } from "../services/api"; // Certifique-se de que o caminho para o api.js está correto
 
 export function Products() {
+  const [items, setItems] = useState([]); // Agora começa vazio
+  const [loading, setLoading] = useState(true);
   const [previewIndex, setPreviewIndex] = useState(null);
 
   // ZOOM STATE
@@ -9,68 +12,35 @@ export function Products() {
   const [isDragging, setIsDragging] = useState(false);
   const lastPos = useRef({ x: 0, y: 0 });
 
-  const items = [
-    {
-      title: "Blusa Algodão Tradicional",
-      desc: "Várias cores disponíveis",
-      price: "R$ 37,99",
-      image: "/assets/produtos/blusa.png",
-    },
-    {
-      title: "Blusa Oversize",
-      desc: "Várias cores disponíveis",
-      price: "R$ 44,99",
-      image: "/assets/produtos/blusa2.png",
-    },
-    {
-      title: "Gola Polo Poliéster",
-      desc: "Várias cores disponíveis",
-      price: "R$ 39,99",
-      image: "/assets/produtos/blusa3.png",
-    },
-    {
-      title: "Cropped Oversized",
-      desc: "Várias cores disponíveis",
-      price: "R$ 39,99",
-      image: "/assets/produtos/blusa4.png",
-    },
-    {
-      title: "Caneca Branca Porcelana",
-      desc: "",
-      price: "R$ 26,99",
-      image: "/assets/produtos/caneca1.png",
-    },
-    {
-      title: "Caneca Mágica",
-      desc: "",
-      price: "R$ 29,99",
-      image: "/assets/produtos/caneca2.png",
-    },
-    {
-      title: "Caneca Fundo Colorido",
-      desc: "",
-      price: "R$ 29,99",
-      image: "/assets/produtos/caneca3.png",
-    },
-    {
-      title: "Caneca com Colher",
-      desc: "",
-      price: "R$ 29,99",
-      image: "/assets/produtos/caneca4.png",
-    },
-    {
-      title: "CERÂMICA 20X20",
-      desc: "",
-      price: "R$ 19,99",
-      image: "/assets/produtos/ceramica.png",
-    },
-    {
-      title: "GARRAFA SQUEZZE 500 ml",
-      desc: "Ideal para empresas",
-      price: "R$ 29,99",
-      image: "/assets/produtos/garrafa.png",
-    },
-  ];
+  // BUSCAR PRODUTOS DO SUPABASE
+  useEffect(() => {
+    async function fetchProducts() {
+      const { data, error } = await supabase
+        .from("produtos")
+        .select("*")
+        .eq("active", true); // Só traz os produtos que você marcou como ativos no Admin
+
+      if (error) {
+        console.error("Erro ao carregar produtos:", error);
+      } else {
+        // Mapeamos os dados do banco para o formato que seu componente já usa
+        const formattedProducts = data.map(p => ({
+          title: p.nome,
+          desc: p.descricao,
+          price: Number(p.preco).toLocaleString("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+}),
+
+          image: p.imagem_url,
+        }));
+        setItems(formattedProducts);
+      }
+      setLoading(false);
+    }
+
+    fetchProducts();
+  }, []);
 
   const handleWheel = (e) => {
     const delta = e.deltaY > 0 ? -0.15 : 0.15;

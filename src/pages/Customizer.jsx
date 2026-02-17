@@ -2,8 +2,12 @@ import { ThreeDViewer } from "../components/ThreeDViewer";
 import { PngEditor } from "../components/PngEditor";
 import React, { useEffect, useState, useRef } from "react";
 import { removeBackground } from "@imgly/background-removal";
+import { supabase } from "../services/api"; // Importando a conexão
+
 export function Customizer() {
   const viewerRef = useRef(null);
+  const previewRef = useRef(null);
+
 
   const [model, setModel] = useState("normal");
   const [gender] = useState("masculino");
@@ -21,37 +25,27 @@ export function Customizer() {
 
   const [mobileTab, setMobileTab] = useState("roupa");
 
-  const SHIRT_COLORS = [
-  "#B7A57A", // Cáqui
-  "#2FA4B9", // Azul Turquesa
-  "#FFFFFF", // Branco
-  "#B65A3C", // Terracota
-  "#2FA84F", // Verde Vera
-  "#F2E6C9", // Marfim
-  "#9FC5E8", // Azul BB
-  "#3A4F3B", // Verde Militar
-  "#E91E63", // Pink
-  "#000000", // Preto
-  "#5A3A29", // Marrom
-  "#F57C00", // Laranja
-  "#C2185B", // Fúcsia
-  "#6B1E2E", // Vinho
-  "#FBC02D", // Amarelo
-  "#9FE0B2", // Verde BB
-  "#BDBDBD", // Cinza Mescla
-  "#6A1B9A", // Roxo
-  "#0B7A3E", // Verde Bandeira
-  "#C62828", // Vermelho
-  "#4F4F4F", // Cinza Chumbo
-  "#FA8072", // Salmão
-  "#0D47A1", // Azul Royal
-  "#00A896", // Verde Vick
-  "#F8BBD0", // Rosa BB
-  "#D4A017", // Mostarda
-  "#FF5FA2", // Rosa Chiclete
-  "#C8A2C8", // Lilás
-  "#0A1F44", // Azul Marinho
-];
+  // Novo estado para as cores que vêm do banco
+  const [shirtColors, setShirtColors] = useState([]);
+
+  // Função para buscar as cores no Supabase
+  useEffect(() => {
+    async function fetchColors() {
+      const { data, error } = await supabase
+        .from("cores")
+        .select("*")
+        .eq("active", true)
+        .order("nome", { ascending: true });
+
+
+      if (data) {
+        const hexList = data.map(c => c.hex);
+        setShirtColors(hexList);
+        if (hexList.length > 0) setColor(hexList[0]); // Define a primeira cor como padrão
+      }
+    }
+    fetchColors();
+  }, []);
 
 
   const [isProcessing, setIsProcessing] = useState(false);
@@ -241,41 +235,45 @@ useEffect(() => {
     <div className="fixed inset-0 z-10 bg-black overflow-hidden">
 
       {/* ================= MOBILE ================= */}
-      <div className="h-full flex flex-col lg:flex-row">
+      <div className="h-full flex flex-col isolate">
+
 
 
 
         {/* ===== PREVIEW ===== */}
-<div className="flex-[5] relative z-10 bg-[radial-gradient(circle_at_center,_#3a4048_0%,_#262b33_45%,_#161a20_100%)] overflow-hidden">
-  
-  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+<div
+  ref={previewRef}
+  /* Definimos h-[45vh] para a camisa ocupar quase metade da tela e o resto para o editor */
+  className="h-[45vh] lg:h-[50vh] shrink-0 relative z-0 bg-[radial-gradient(circle_at_center,_#3a4048_0%,_#262b33_45%,_#161a20_100%)] overflow-hidden"
+>
+  <div className="absolute inset-0 flex items-center justify-center">
     <ThreeDViewer
       ref={viewerRef}
+      eventSource={previewRef}
       model={model}
       gender={gender}
       color={color}
       texture={textureURL}
       side={side}
     />
-
-    {/* LOGO COMO MARCA D'ÁGUA AJUSTADA */}
-
   </div>
 </div>
 
         {/* ===== PAINEL ===== */}
-        <div
+<div
   className="
-    flex-[4]
-    lg:w-[420px]
+    flex-1           /* Faz o painel ocupar todo o espaço restante abaixo */
+    w-full           /* Ocupa a largura total */
     min-h-0
     bg-neutral-900
     overflow-hidden
-    border-t lg:border-t-0 lg:border-l border-white/10
+    border-t border-white/10
     relative
-    z-30
+    z-[50]
+    pointer-events-auto
   "
 >
+
 
 
 
@@ -306,179 +304,191 @@ useEffect(() => {
           </div>
 
           {/* CONTEÚDO */}
-          <div className="h-full overflow-y-auto px-4 py-4 overscroll-contain">
+          <div className="h-full overflow-y-auto overscroll-contain bg-neutral-900">
+            {/* max-w-2xl centraliza e impede que os botões estiquem no desktop */}
+            <div className="max-w-2xl mx-auto px-4 py-6 space-y-8 pb-32">
 
-            {/* ===== ROUPA ===== */}
-            {mobileTab === "roupa" && (
-              <div className="space-y-4 pb-20">
-                <div className="side-buttons">
-                  <button onClick={() => setSide("front")}>Frente</button>
-                  <button onClick={() => setSide("back")}>Costas</button>
-                </div>
-
-                <select
-                  value={model}
-                  onChange={(e) => setModel(e.target.value)}
-                  className="w-full bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 text-white"
-                >
-                  <option value="normal">Camisa normal</option>
-                  <option value="polo">Gola polo</option>
-                  <option value="manga-longa">Manga longa</option>
-                </select>
-
-                <div className="grid grid-cols-6 gap-4">
-                  {SHIRT_COLORS.map((c) => (
-                    <button
-                      key={c}
-                      onClick={() => setColor(c)}
-                      className={`w-10 h-10 rounded-md ${
-                        color === c ? "ring-2 ring-white scale-110" : ""
+              {/* ===== ROUPA ===== */}
+              {mobileTab === "roupa" && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+                  <div className="flex gap-4 justify-center">
+                    <button 
+                      onClick={() => setSide("front")}
+                      className={`flex-1 max-w-[140px] py-3 rounded-xl font-bold transition-all border ${
+                        side === 'front' 
+                        ? 'bg-purple-600 text-white border-purple-400 shadow-lg shadow-purple-500/20' 
+                        : 'bg-neutral-800 text-white/60 border-white/5 hover:bg-neutral-700'
                       }`}
-                      style={{ backgroundColor: c }}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* ===== TEXTO ===== */}
-            {mobileTab === "texto" && (
-              <div className="space-y-4">
-                <input
-                  value={textInput}
-                  onChange={(e) => setTextInput(e.target.value)}
-                  placeholder="Digite o texto"
-                  className="w-full bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 text-white"
-                />
-
-                <div className="grid grid-cols-6 gap-3">
-                  {SHIRT_COLORS.map((c) => (
-                    <button
-                      key={`text-${c}`}
-                      onClick={() => {
-                        setTextColor(c);
-                        setTexts((prev) =>
-                          prev.map((t) =>
-                            t.id === selectedId ? { ...t, color: c } : t
-                          )
-                        );
-                      }}
-                      className={`w-9 h-9 rounded-md ${
-                        textColor === c ? "ring-2 ring-white scale-110" : ""
+                    >
+                      Frente
+                    </button>
+                    <button 
+                      onClick={() => setSide("back")}
+                      className={`flex-1 max-w-[140px] py-3 rounded-xl font-bold transition-all border ${
+                        side === 'back' 
+                        ? 'bg-purple-600 text-white border-purple-400 shadow-lg shadow-purple-500/20' 
+                        : 'bg-neutral-800 text-white/60 border-white/5 hover:bg-neutral-700'
                       }`}
-                      style={{ backgroundColor: c }}
-                    />
-                  ))}
+                    >
+                      Costas
+                    </button>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-wider">Modelo da Peça</label>
+                    <select
+                      value={model}
+                      onChange={(e) => setModel(e.target.value)}
+                      className="w-full bg-neutral-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 outline-none"
+                    >
+                      <option value="normal">Camisa normal</option>
+                      <option value="polo">Gola polo</option>
+                      <option value="manga-longa">Manga longa</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-wider">Cores</label>
+                    <div className="grid grid-cols-6 sm:grid-cols-8 gap-3 bg-neutral-800/40 p-4 rounded-2xl border border-white/5">
+                      {shirtColors.map((c) => (
+                        <button
+                          key={c}
+                          onClick={() => setColor(c)}
+                          className={`aspect-square rounded-full transition-all hover:scale-110 ${
+                            color === c ? "ring-2 ring-purple-500 ring-offset-2 ring-offset-neutral-900 scale-110" : "opacity-80"
+                          }`}
+                          style={{ backgroundColor: c }}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 </div>
+              )}
 
-                <button
-                  onClick={addText}
-                  className="w-full bg-purple-600 py-2 rounded-lg text-white"
-                >
-                  ➕ Adicionar texto
-                </button>
+              {/* ===== TEXTO ===== */}
+              {mobileTab === "texto" && (
+                <div className="space-y-4 animate-in fade-in">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-wider">Escreva seu texto</label>
+                    <input
+                      value={textInput}
+                      onChange={(e) => setTextInput(e.target.value)}
+                      placeholder="Ex: Minha Marca"
+                      className="w-full bg-neutral-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 outline-none"
+                    />
+                  </div>
 
-                <button
-                  onClick={removeSelectedItem}
-                  disabled={!selectedId}
-                  className="w-full bg-red-500/10 py-2 rounded-lg text-red-300 disabled:opacity-40"
-                >
-                  🗑️ Remover item selecionado
-                </button>
-              </div>
-            )}
+                  <div className="grid grid-cols-6 sm:grid-cols-8 gap-2">
+                    {shirtColors.map((c) => (
+                      <button
+                        key={`text-${c}`}
+                        onClick={() => {
+                          setTextColor(c);
+                          setTexts((prev) =>
+                            prev.map((t) => t.id === selectedId ? { ...t, color: c } : t)
+                          );
+                        }}
+                        className={`aspect-square rounded-lg transition-all ${
+                          textColor === c ? "ring-2 ring-white scale-110" : "border border-white/10"
+                        }`}
+                        style={{ backgroundColor: c }}
+                      />
+                    ))}
+                  </div>
 
-            {/* ===== IMAGEM ===== */}
-            {/* Localize este trecho no seu código */}
-{mobileTab === "imagem" && (
-  <div className="space-y-4">
-    {/* Substitua o <input /> antigo por este: */}
-    <div className="flex flex-col gap-2">
-      <label className="text-white text-sm mb-1">Selecione uma imagem da sua galeria:</label>
-      <input 
-        type="file" 
-        accept="image/png, image/jpeg, image/jpg" 
-        onChange={handleUpload}
-        capture={false} 
-        className="w-full bg-neutral-800 border border-white/10 rounded-lg px-3 py-4 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white"
-      />
-    </div>
-    
-    <button
-      onClick={removeSelectedItem}
-      disabled={!selectedId}
-      className="w-full bg-red-500/10 py-2 rounded-lg text-red-300 disabled:opacity-40"
-    >
-      🗑️ Remover item selecionado
-    </button>
-  </div>
-)}
+                  <button
+                    onClick={addText}
+                    className="w-full bg-purple-600 hover:bg-purple-500 py-3 rounded-xl text-white font-bold"
+                  >
+                    ➕ Adicionar texto
+                  </button>
 
-            {/* ===== PNG (Modificado para permitir rolagem) ===== */}
-<div 
-  className="flex flex-col gap-4 overflow-y-auto max-h-[500px] pb-10" 
-  style={{ display: mobileTab === "png" ? "flex" : "none" }}
->
-  {/* Área do Editor */}
-  <div className="flex-shrink-0 h-[380px] overflow-x-scroll overflow-y-hidden border border-white/10 rounded-lg">
-    <div className="relative h-full w-[140%]">
-      <PngEditor
-        texts={texts}
-        images={images}
-        setImages={setImages}
-        setTexts={setTexts}
-        onTextureReady={setTextureURL}
-        selectedId={selectedId}
-        onSelect={setSelectedId}
-      />
-    </div>
-  </div>
+                  <button
+                    onClick={removeSelectedItem}
+                    disabled={!selectedId}
+                    className="w-full bg-red-500/10 py-3 rounded-xl text-red-300 border border-red-500/20 disabled:opacity-40"
+                  >
+                    🗑️ Remover selecionado
+                  </button>
+                </div>
+              )}
 
-  {/* Dentro do bloco mobileTab === "png" */}
-<div className="px-2 space-y-2">
-  
-  <button
-    onClick={handleRemoveBackground}
-    disabled={!selectedId || isProcessing || !selectedId.startsWith('img-')}
-    className="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg text-white font-medium disabled:opacity-40 flex items-center justify-center gap-2"
-  >
-    {isProcessing ? (
-      <span className="animate-spin">🌀</span>
-    ) : (
-      "✨ Remover Fundo da Imagem"
-    )}
-  </button>
+              {/* ===== IMAGEM ===== */}
+              {mobileTab === "imagem" && (
+                <div className="space-y-6 animate-in fade-in">
+                  <div className="flex flex-col gap-3">
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-wider">Upload de Estampa</label>
+                    <input 
+                      type="file" 
+                      accept="image/png, image/jpeg, image/jpg" 
+                      onChange={handleUpload}
+                      className="w-full bg-neutral-800 border border-dashed border-white/20 rounded-xl px-4 py-8 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-purple-600 file:text-white"
+                    />
+                  </div>
+                  <button
+                    onClick={removeSelectedItem}
+                    disabled={!selectedId}
+                    className="w-full bg-red-500/10 py-3 rounded-xl text-red-300 border border-red-500/20 disabled:opacity-40"
+                  >
+                    🗑️ Remover selecionado
+                  </button>
+                </div>
+              )}
 
-  <button
-    onClick={removeSelectedItem}
-    disabled={!selectedId}
-    className="w-full bg-red-500/20 py-3 rounded-lg text-red-300 border border-red-500/30 disabled:opacity-40 font-medium mb-4"
-  >
-    🗑️ Remover item selecionado
-  </button>
-</div>
-</div>
-            
+              {/* ===== PNG EDITOR ===== */}
+              {mobileTab === "png" && (
+                <div className="flex flex-col gap-6 animate-in fade-in">
+                  <div className="flex-shrink-0 h-[400px] bg-black/20 overflow-x-auto border border-white/10 rounded-2xl relative">
+                    <div className="relative h-full w-[140%]">
+                      <PngEditor
+                        texts={texts}
+                        images={images}
+                        setImages={setImages}
+                        setTexts={setTexts}
+                        onTextureReady={setTextureURL}
+                        selectedId={selectedId}
+                        onSelect={setSelectedId}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <button
+                      onClick={handleRemoveBackground}
+                      disabled={!selectedId || isProcessing || !selectedId.startsWith('img-')}
+                      className="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-xl text-white font-bold disabled:opacity-40 flex items-center justify-center gap-2"
+                    >
+                      {isProcessing ? <span className="animate-spin">🌀</span> : "✨ Remover Fundo"}
+                    </button>
+                    <button
+                      onClick={removeSelectedItem}
+                      disabled={!selectedId}
+                      className="w-full bg-red-500/10 py-4 rounded-xl text-red-300 border border-red-500/20 disabled:opacity-40 font-bold"
+                    >
+                      🗑️ Remover item
+                    </button>
+                  </div>
+                </div>
+              )}
 
-            {/* ===== AÇÕES ===== */}
-            {mobileTab === "acoes" && (
-              <div className="space-y-4">
-                <button
-                  onClick={downloadMockup}
-                  className="w-full bg-purple-600 py-2 rounded-lg text-white"
-                >
-                  ⬇️ Baixar mockup
-                </button>
+              {/* ===== AÇÕES ===== */}
+              {mobileTab === "acoes" && (
+                <div className="space-y-4 max-w-md mx-auto animate-in fade-in">
+                  <button
+                    onClick={downloadMockup}
+                    className="w-full bg-purple-600 hover:bg-purple-500 py-4 rounded-2xl text-white font-bold text-lg shadow-xl shadow-purple-900/20 transition-all active:scale-95"
+                  >
+                    ⬇️ Baixar mockup
+                  </button>
+                  <button
+                    onClick={resetAll}
+                    className="w-full bg-red-500/10 hover:bg-red-500/20 py-4 rounded-2xl text-red-400 border border-red-500/20 transition-all"
+                  >
+                    ♻️ Resetar tudo
+                  </button>
+                </div>
+              )}
 
-                <button
-                  onClick={resetAll}
-                  className="w-full bg-red-500/10 py-2 rounded-lg text-red-300"
-                >
-                  ♻️ Resetar tudo
-                </button>
-              </div>
-            )}
-
+            </div>
           </div>
         </div>
       </div>
